@@ -7,11 +7,13 @@ import { required } from "@vuelidate/validators";
 const store = useStore()
 
 const username = ref('')
+const isUaLocale = ref(true)
 
 const info = computed(() => store.getters.info)
 
 onMounted(() => {
   username.value = info.value.username
+  isUaLocale.value = info.value.locale === 'ua-UA'
   setTimeout(() => {
     M.updateTextFields()
   }, 0)
@@ -31,7 +33,10 @@ const submitHandler = async () => {
   }
 
   try {
-    await store.dispatch('updateInfo', {username: username.value})
+    await store.dispatch('updateInfo', {
+      username: username.value,
+      locale: isUaLocale.value ? 'ua-UA' : 'en-US'
+    })
   } catch (e) {}
 };
 
@@ -58,7 +63,7 @@ const submitHandler = async () => {
       <div class="switch">
         <label>
           English
-          <input type="checkbox">
+          <input type="checkbox" v-model="isUaLocale">
           <span class="lever"></span>
           Українська
         </label>
