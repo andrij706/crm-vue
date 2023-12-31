@@ -1,10 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import CategoryCreate from "@/components/CategoryCreate.vue";
 import CategoryEdit from "@/components/CategoryEdit.vue";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const categories = ref([]);
 const loading = ref(true);
@@ -30,7 +37,7 @@ onMounted(async () => {
 <template>
   <div>
     <div class="page-title">
-      <h3>Категорії</h3>
+      <h3>{{ t('categories') }}</h3>
     </div>
     <section>
       <Loader v-if="loading" />
@@ -42,7 +49,7 @@ onMounted(async () => {
           :categories="categories"
           :key="categories.length + updateCount"
         />
-        <p v-else class="center">Категорій ще нема</p>
+        <p v-else class="center">{{ t('emptyCategories') }}</p>
       </div>
     </section>
   </div>

@@ -1,13 +1,20 @@
 <script setup>
-import { ref, onMounted, inject, defineEmits } from "vue";
+import { ref, onMounted, inject, defineEmits, computed } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minValue } from "@vuelidate/validators";
 import { useStore } from "vuex";
 import messages from "@/utils/messages";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
 const emit = defineEmits();
 const messagePlugin = inject("messagePlugin");
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const title = ref("");
 const limit = ref(10);
@@ -46,7 +53,7 @@ const submitHandler = async () => {
   <div class="col s12 m6">
     <div>
       <div class="page-subtitle">
-        <h4>Створити</h4>
+        <h4>{{ t('create') }}</h4>
       </div>
 
       <form @submit.prevent="submitHandler">
@@ -57,11 +64,11 @@ const submitHandler = async () => {
             v-model="title"
             :class="{ invalid: v$.title.$dirty && v$.title.required.$invalid }"
           />
-          <label for="name">Назва</label>
+          <label for="name">{{ t('catName') }}</label>
           <span
             v-if="v$.title.$dirty && v$.title.required.$invalid"
             class="helper-text invalid"
-            >Введіть назву</span
+            >{{ t('enterCatName') }}</span
           >
         </div>
 
@@ -72,15 +79,15 @@ const submitHandler = async () => {
             v-model.number="limit"
             :class="{ invalid: v$.limit.$dirty && v$.limit.minValue.$invalid }"
           />
-          <label for="limit">Ліміт</label>
+          <label for="limit">{{ t('limit') }}</label>
           <span
             v-if="v$.limit.$dirty && v$.limit.minValue.$invalid"
             class="helper-text invalid"
-            >Мінімальне значення {{ v$.limit.minValue.$params.min }}</span>
+            >{{ t('invalidLimit') }} {{ v$.limit.minValue.$params.min }}</span>
         </div>
 
         <button class="btn waves-effect waves-light" type="submit">
-          Створити
+          {{ t('create') }}
           <i class="material-icons right">send</i>
         </button>
       </form>

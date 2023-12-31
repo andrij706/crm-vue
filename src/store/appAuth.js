@@ -15,7 +15,7 @@ const actions = {
       throw e;
     }
   },
-  async register({ dispatch, commit }, { email, password, username }) {
+  async register({ dispatch, commit }, { email, password, username, locale }) {
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -27,6 +27,7 @@ const actions = {
       await set(recordRef, {
         bill: 10000,
         username,
+        locale
       });
     } catch (e) {
       commit("setError", e);

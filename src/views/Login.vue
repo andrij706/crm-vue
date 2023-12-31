@@ -5,15 +5,21 @@ import { useVuelidate } from "@vuelidate/core";
 import { required, email, minLength } from "@vuelidate/validators";
 import { useStore } from "vuex";
 import messages from "../utils/messages";
+import {useI18n} from 'vue-i18n'
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
+const { t, locale } = useI18n({useScope: 'global'})
+
 const messagePlugin = inject("messagePlugin");
 
 const userEmail = ref("");
 const userPassword = ref("");
+
+const isUaLocale = ref(true)
+locale.value = isUaLocale.value ? 'ua' : 'en' 
 
 const rules = {
   userEmail: { email, required },
@@ -48,7 +54,7 @@ onMounted(() => {
 <template>
   <form class="card auth-card" @submit.prevent="submitHandler">
     <div class="card-content">
-      <span class="card-title">Домашня бухгалтерія</span>
+      <span class="card-title">{{ t('title') }}</span>
       <div class="input-field">
         <input
           id="email"
@@ -64,12 +70,12 @@ onMounted(() => {
         <small
           class="helper-text invalid"
           v-if="v$.userEmail.$dirty && v$.userEmail.required.$invalid"
-          >Поле Email не може бути порожнім</small
+          >{{ t('emailInvalid1') }}</small
         >
         <small
           class="helper-text invalid"
           v-else-if="v$.userEmail.$dirty && v$.userEmail.email.$invalid"
-          >Введіть коректний Email</small
+          >{{ t('emailInvalid2') }}</small
         >
       </div>
       <div class="input-field">
@@ -83,34 +89,41 @@ onMounted(() => {
               (v$.userPassword.$dirty && v$.userPassword.minLength.$invalid),
           }"
         />
-        <label for="password">Пароль</label>
+        <label for="password">{{ t('password') }}</label>
         <small
           class="helper-text invalid"
           v-if="v$.userPassword.$dirty && v$.userPassword.required.$invalid"
-          >Введіть пароль</small
+          >{{ t('passwordInvalid1') }}</small
         >
         <small
           class="helper-text invalid"
           v-else-if="
             v$.userPassword.$dirty && v$.userPassword.minLength.$invalid
           "
-          >Мінімальна довжина пароля
-          {{ v$.userPassword.minLength.$params.min }} символів. Довжина вашого
-          паролю {{ userPassword.length }} символів</small>
+          >{{ t('passwordInvalid2') }}
+          {{ v$.userPassword.minLength.$params.min }} {{ t('passwordInvalid2_1') }} {{ userPassword.length }} {{ t('passwordInvalid2_2') }}</small>
       </div>
     </div>
     <div class="card-action">
       <div>
         <button class="btn waves-effect waves-light auth-submit" type="submit">
-          Ввійти
+          {{ t('enter') }}
           <i class="material-icons right">send</i>
         </button>
       </div>
 
       <p class="center">
-        Відсутній аккаунт?
-        <router-link :to="{ name: 'register' }">Зареєструватися</router-link>
+        {{ t('missAccaunt') }}
+        <router-link :to="{ name: 'register' }">{{ t('signUp') }}</router-link>
       </p>
     </div>
   </form>
+  <div class="switch">
+        <label>
+          English
+          <input type="checkbox" v-model="isUaLocale" v-on:change="locale = isUaLocale ? 'ua' : 'en'">
+          <span class="lever"></span>
+          Українська
+        </label>
+      </div>
 </template>

@@ -1,12 +1,19 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed, inject } from "vue";
-import { useStore, mapGetters } from "vuex";
+import { useStore} from "vuex";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minValue } from "@vuelidate/validators";
 import messages from "@/utils/messages";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
 const messagePlugin = inject("messagePlugin");
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const loading = ref(true);
 const categories = ref([]);
@@ -74,7 +81,7 @@ const submitHandler = async () => {
     } catch (e) {}
   } else {
     messagePlugin(
-      `Недостатньо коштів на рахунку (${amount.value - info.value.bill})`,
+      `${t('notEnough')} (${amount.value - info.value.bill})`,
     );
   }
 };
@@ -89,13 +96,13 @@ onBeforeUnmount(() => {
 <template>
   <div>
     <div class="page-title">
-      <h3>Новий запис</h3>
+      <h3>{{ t('newRecord') }}</h3>
     </div>
     <Loader v-if="loading" />
     <p v-else-if="!categories.length" class="center">
-      Категорій ще нема
+      {{ t('emptyCategories') }}
       <RouterLink :to="{ name: 'categories' }"
-        >Додати нову категорію</RouterLink
+        >{{ t('createCategory') }}</RouterLink
       >
     </p>
     <form v-else @submit.prevent="submitHandler" class="form">
@@ -105,7 +112,7 @@ onBeforeUnmount(() => {
             {{ c.title }}
           </option>
         </select>
-        <label>Виберіть категорію</label>
+        <label>{{ t('choiceCategory') }}</label>
       </div>
       <p>
         <label>
@@ -116,7 +123,7 @@ onBeforeUnmount(() => {
             value="income"
             v-model="type"
           />
-          <span>Дохід</span>
+          <span>{{ t('income') }}</span>
         </label>
       </p>
       <p>
@@ -128,7 +135,7 @@ onBeforeUnmount(() => {
             value="outcome"
             v-model="type"
           />
-          <span>Витрати</span>
+          <span>{{ t('outcome') }}</span>
         </label>
       </p>
       <div class="input-field">
@@ -138,11 +145,11 @@ onBeforeUnmount(() => {
           v-model.number="amount"
           :class="{ invalid: v$.amount.$dirty && v$.amount.minValue.$invalid }"
         />
-        <label for="amount">Сума</label>
+        <label for="amount">{{ t('total') }}</label>
         <span
           class="helper-text invalid"
           v-if="v$.amount.$dirty && v$.amount.minValue.$invalid"
-          >Мінімальне значення {{ v$.amount.minValue.$params.min }}</span
+          >{{ t('invalidLimit') }} {{ v$.amount.minValue.$params.min }}</span
         >
       </div>
       <div class="input-field">
@@ -154,15 +161,15 @@ onBeforeUnmount(() => {
             invalid: v$.description.$dirty && v$.description.required.$invalid,
           }"
         />
-        <label for="description">Опис</label>
+        <label for="description">{{ t('description') }}</label>
         <span
           class="helper-text invalid"
           v-if="v$.description.$dirty && v$.description.required.$invalid"
-          >Додайте опис</span
+          >{{ t('addDesc') }}</span
         >
       </div>
       <button class="btn waves-effect waves-light" type="submit">
-        Створити
+        {{ t('create') }}
         <i class="material-icons right">send</i>
       </button>
     </form>

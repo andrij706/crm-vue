@@ -1,5 +1,14 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
+import {useStore} from 'vuex'
+import {useI18n} from 'vue-i18n'
+
+const store = useStore();
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const { rates, date } = defineProps(["rates", "date"]);
 const currencies = ref(["UAH", "USD", "EUR"]);
@@ -10,14 +19,14 @@ const currencies = ref(["UAH", "USD", "EUR"]);
     <div class="card orange darken-3 bill-card">
       <div class="card-content white-text">
         <div class="card-header">
-          <span class="card-title">Курс валют</span>
+          <span class="card-title">{{ t('exchangeRate') }}</span>
         </div>
         <table>
           <thead>
             <tr>
-              <th>Валюта</th>
-              <th>Курс</th>
-              <th>Дата</th>
+              <th>{{ t('currency') }}</th>
+              <th>{{ t('rate') }}</th>
+              <th>{{ t('date') }}</th>
             </tr>
           </thead>
           <tbody>

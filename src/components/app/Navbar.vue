@@ -3,9 +3,16 @@ import M from "materialize-css";
 import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import {useI18n} from 'vue-i18n'
 
 const router = useRouter();
 const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const username = computed(() => {
   return store.getters.info.username;
@@ -67,13 +74,13 @@ onBeforeUnmount(() => {
           <ul id="dropdown" class="dropdown-content">
             <li>
               <router-link :to="{ name: 'profile' }" class="black-text">
-                <i class="material-icons">account_circle</i>Профіль
+                <i class="material-icons">account_circle</i>{{ t('profile') }}
               </router-link>
             </li>
             <li class="divider" tabindex="-1"></li>
             <li>
               <a @click.prevent="logOut" href="#" class="black-text">
-                <i class="material-icons">assignment_return</i>Вийти
+                <i class="material-icons">assignment_return</i>{{ t('exit') }}
               </a>
             </li>
           </ul>

@@ -1,10 +1,17 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useStore } from "vuex";
-
-const currencies = ref(["UAH", "USD", "EUR"]);
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
+
+const currencies = ref(["UAH", "USD", "EUR"]);
 
 const { rates } = defineProps(["rates"]);
 
@@ -21,7 +28,7 @@ const getCurrency = (currency) => {
   <div class="col s12 m6 l4">
     <div class="card light-blue bill-card">
       <div class="card-content white-text">
-        <span class="card-title">Рахунок у валюті</span>
+        <span class="card-title">{{ t('billCurrency') }}</span>
         <p v-for="cur in currencies" :key="cur" class="currency-line">
           <span>{{
             getCurrency(cur).toLocaleString("en-US", {

@@ -1,14 +1,21 @@
 <script setup>
-import {onMounted, ref} from 'vue'
+import {onMounted, ref, computed} from 'vue'
 import {useStore} from 'vuex'
 import HistoryTable from '@/components/HistoryTable.vue';
 import Paginate from 'vuejs-paginate-next'
 import {useRoute, useRouter} from 'vue-router'
 import HistoryChart from '@/components/HistoryChart.vue';
+import {useI18n} from 'vue-i18n'
 
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const loading = ref(true)
 const records = ref([])
@@ -50,8 +57,9 @@ onMounted( async () => {
     const storeRecords = await store.dispatch("fetchRecords");
     categories.value = await store.dispatch("fetchCategories");
     
-    records.value = storeRecords.map(record => {
-        return {
+
+    records.value  = storeRecords.map(record => {
+      return {
             ...record,
             categoryName: categories.value.find(c => c.id === record.categoryID).title,
             typeClass: record.type === 'income' ? 'green' : 'red',
@@ -60,7 +68,6 @@ onMounted( async () => {
     })
 
     setupPagination()
-    loading.value = false
 
     charOptions.value = categories.value.map(c => c.title)
 
@@ -80,6 +87,7 @@ onMounted( async () => {
         backgroundColor: colors
       }]
     }
+    loading.value = false
 
   }catch(e) {}
 })
@@ -94,28 +102,27 @@ const pageChangeHandler = () => {
 <template>
   <div>
     <div class="page-title">
-      <h3>Історія записів</h3>
+      <h3>{{ t('recHistory') }}</h3>
     </div>
-
-    <div class="history-chart">
+    <Loader v-if="loading"/>
+    <p v-else-if="!records.length" class="center">
+      {{ t('emptyHis') }}
+      <RouterLink :to="{ name: 'categories' }"
+        >{{ t('createNewRec') }}</RouterLink
+      ></p>
+    <section v-else>
+      <div class="history-chart">
       <section>
         <HistoryChart :loading="loading" :charData="charData" :charOptions="charOptions" :style="{ maxHeight: '300px' }" />
       </section>
     </div>
-    <Loader v-if="loading"/>
-    <p v-else-if="!records.length" class="center">
-      Записи відсутні
-      <RouterLink :to="{ name: 'categories' }"
-        >Додати новий запис</RouterLink
-      ></p>
-    <section v-else>
       <HistoryTable :records="items"/>
       <Paginate
         v-model="page"
         :page-count="pageCount"
         :click-handler="pageChangeHandler"
-        :prev-text="'Попередня'"
-        :next-text="'Наступна'"
+        :prev-text="t('prev')"
+        :next-text="t('next')"
         :container-class="'pagination'"
         :page-class="'waves-effect'"
       />

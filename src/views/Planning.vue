@@ -2,8 +2,15 @@
 import { ref, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 import { vTooltip } from "@/directives/tooltip.directive";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const loading = ref(true);
 const categories = ref([]);
@@ -29,8 +36,8 @@ onMounted(async () => {
         percent < 60 ? "green" : percent < 100 ? "yellow" : "red";
       const tooltipValue = cat.limit - spend;
       const tooltip = `${
-        tooltipValue < 0 ? "Перевищення на " : "Залишилося "
-      }${Math.abs(tooltipValue).toLocaleString("uk-UA", {
+        tooltipValue < 0 ? t('overBy') : t('remaining')
+      }${Math.abs(tooltipValue).toLocaleString(t('currencyType'), {
         style: "currency",
         currency: "UAH",
       })}`;
@@ -52,7 +59,7 @@ onMounted(async () => {
 <template>
   <div>
     <div class="page-title">
-      <h3>Планування</h3>
+      <h3>{{ t('planning') }}</h3>
       <h4>
         {{
           info.bill.toLocaleString("en-US", {
@@ -64,9 +71,9 @@ onMounted(async () => {
     </div>
     <Loader v-if="loading" />
     <p v-else-if="!categories.length" class="center">
-      Категорій ще нема
+      {{ t('emptyCategories') }}
       <RouterLink :to="{ name: 'categories' }"
-        >Додати нову категорію</RouterLink
+        >{{ t('createCategory') }}</RouterLink
       >
     </p>
     <section v-else>

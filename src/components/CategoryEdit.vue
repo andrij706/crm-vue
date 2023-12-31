@@ -6,15 +6,22 @@ import {
   watch,
   inject,
   defineEmits,
+  computed
 } from "vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, minValue } from "@vuelidate/validators";
 import { useStore } from "vuex";
 import messages from "@/utils/messages";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore();
 const emit = defineEmits();
 const messagePlugin = inject("messagePlugin");
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const selectMat = ref(null);
 const select = ref(null);
@@ -80,7 +87,7 @@ const submitHandler = async () => {
   <div class="col s12 m6">
     <div>
       <div class="page-subtitle">
-        <h4>Редагувати</h4>
+        <h4>{{ t('edit') }}</h4>
       </div>
 
       <form @submit.prevent="submitHandler">
@@ -90,7 +97,7 @@ const submitHandler = async () => {
               {{ cat.title }}
             </option>
           </select>
-          <label>Виберіть категорію</label>
+          <label>{{ t('choiceCategory') }}</label>
         </div>
 
         <div class="input-field">
@@ -102,11 +109,11 @@ const submitHandler = async () => {
               invalid: v$.newTitle.$dirty && v$.newTitle.required.$invalid,
             }"
           />
-          <label for="name">Назва</label>
+          <label for="name">{{ t('catName') }}</label>
           <span
             v-if="v$.newTitle.$dirty && v$.newTitle.required.$invalid"
             class="helper-text invalid"
-            >Введіть назву</span
+            >{{ t('enterCatName') }}</span
           >
         </div>
 
@@ -119,16 +126,16 @@ const submitHandler = async () => {
               invalid: v$.newLimit.$dirty && v$.newLimit.minValue.$invalid,
             }"
           />
-          <label for="limit">Ліміт</label>
+          <label for="limit">{{ t('limit') }}</label>
           <span
             v-if="v$.newLimit.$dirty && v$.newLimit.minValue.$invalid"
             class="helper-text invalid"
-            >Мінімальне значення {{ v$.newLimit.minValue.$params.min }}</span
+            >{{ t('invalidLimit') }} {{ v$.newLimit.minValue.$params.min }}</span
           >
         </div>
 
         <button class="btn waves-effect waves-light" type="submit">
-          Оновити
+          {{ t('update') }}
           <i class="material-icons right">send</i>
         </button>
       </form>

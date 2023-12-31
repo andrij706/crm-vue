@@ -1,5 +1,16 @@
 <script setup>
+import { computed } from "vue";
+import { useStore } from "vuex";
 import { vTooltip } from '@/directives/tooltip.directive'
+import {useI18n} from 'vue-i18n'
+
+const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const {records} = defineProps(['records'])
 
@@ -10,11 +21,11 @@ const {records} = defineProps(['records'])
         <thead>
           <tr>
             <th>#</th>
-            <th>Сума</th>
-            <th>Дата</th>
-            <th>Категорія</th>
-            <th>Тип</th>
-            <th>Відкрити</th>
+            <th>{{ t('total') }}</th>
+            <th>{{ t('date') }}</th>
+            <th>{{ t('category') }}</th>
+            <th>{{ t('type') }}</th>
+            <th>{{ t('open') }}</th>
           </tr>
         </thead>
 
@@ -27,11 +38,11 @@ const {records} = defineProps(['records'])
             <td>{{ record.date.toLocaleString(("en-GB", { timeZone: "UTC" })) }}</td>
             <td>{{ record.categoryName }}</td>
             <td>
-              <span class="white-text badge" :class="[record.typeClass]">{{ record.typeText }}</span>
+              <span class="white-text badge" :class="[record.typeClass]">{{ record.typeText === 'Витрати'? t('outcome') : t('income') }}</span>
             </td>
             <td>
               <button
-                v-tooltip="'Подивитися запис'"
+                v-tooltip="t('openRec')"
                 class="btn-small btn" 
                 @click="$router.push('/detail/' + record.id)"
               >

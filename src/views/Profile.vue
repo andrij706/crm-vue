@@ -3,8 +3,15 @@ import {ref, computed, onMounted} from 'vue'
 import {useStore} from 'vuex'
 import { useVuelidate } from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
+import {useI18n} from 'vue-i18n'
 
 const store = useStore()
+
+const { t, locale } = useI18n({useScope: 'global'})
+
+const myLocale = computed(() => store.getters.info.locale)
+
+locale.value = myLocale.value
 
 const username = ref('')
 const isUaLocale = ref(true)
@@ -13,7 +20,7 @@ const info = computed(() => store.getters.info)
 
 onMounted(() => {
   username.value = info.value.username
-  isUaLocale.value = info.value.locale === 'ua-UA'
+  isUaLocale.value = info.value.locale === 'ua'
   setTimeout(() => {
     M.updateTextFields()
   }, 0)
@@ -35,7 +42,7 @@ const submitHandler = async () => {
   try {
     await store.dispatch('updateInfo', {
       username: username.value,
-      locale: isUaLocale.value ? 'ua-UA' : 'en-US'
+      locale: isUaLocale.value ? 'ua' : 'en'
     })
   } catch (e) {}
 };
@@ -45,7 +52,7 @@ const submitHandler = async () => {
 <template>
   <div>
     <div class="page-title">
-      <h3>Профіль</h3>
+      <h3>{{ t('profile') }}</h3>
     </div>
 
     <form class="form" @submit.prevent="submitHandler">
@@ -53,11 +60,11 @@ const submitHandler = async () => {
         <input id="description" type="text" v-model.trim="username" 
           :class="{invalid: (v$.username.$dirty && v$.username.required.$invalid)}"
         />
-        <label for="description">І'мя</label>
+        <label for="description">{{ t('name') }}</label>
         <small
           class="helper-text invalid"
           v-if="v$.username.$dirty && v$.username.required.$invalid"
-          >Введіть ім'я</small
+          >{{ t('nameEnter') }}</small
         >
       </div>
       <div class="switch">
@@ -70,7 +77,7 @@ const submitHandler = async () => {
       </div>
 
       <button class="btn waves-effect waves-light" type="submit">
-        Оновити
+        {{ t('update') }}
         <i class="material-icons right">send</i>
       </button>
     </form>

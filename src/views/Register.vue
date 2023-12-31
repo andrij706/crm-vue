@@ -4,14 +4,20 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { useVuelidate } from "@vuelidate/core";
 import { required, email, minLength } from "@vuelidate/validators";
+import {useI18n} from 'vue-i18n'
 
 const router = useRouter();
 const store = useStore();
+
+const { t, locale } = useI18n({useScope: 'global'})
 
 const username = ref("");
 const userEmail = ref("");
 const userPassword = ref("");
 const agree = ref(false);
+
+const isUaLocale = ref(true)
+locale.value = isUaLocale.value ? 'ua' : 'en'
 
 const rules = {
   username: { required },
@@ -31,6 +37,7 @@ const submitHandler = async () => {
     username: username.value,
     email: userEmail.value,
     password: userPassword.value,
+    locale: locale.value
   };
   try {
     await store.dispatch("register", formData);
@@ -40,9 +47,9 @@ const submitHandler = async () => {
 </script>
 
 <template>
-  <form class="card auth-card" @submit.prevent="submitHandler">
+  <form class="card auth-card" @submit.prevent="submitHandler" :key="locale">
     <div class="card-content">
-      <span class="card-title">Домашня бухгалтерія</span>
+      <span class="card-title">{{ t('title') }}</span>
       <div class="input-field">
         <input
           id="email"
@@ -58,12 +65,12 @@ const submitHandler = async () => {
         <small
           class="helper-text invalid"
           v-if="v$.userEmail.$dirty && v$.userEmail.required.$invalid"
-          >Поле Email не може бути порожнім</small
+          >{{ t('emailInvalid1') }}</small
         >
         <small
           class="helper-text invalid"
           v-else-if="v$.userEmail.$dirty && v$.userEmail.email.$invalid"
-          >Введіть коректний Email</small
+          >{{ t('emailInvalid2') }}</small
         >
       </div>
       <div class="input-field">
@@ -77,20 +84,19 @@ const submitHandler = async () => {
               (v$.userPassword.$dirty && v$.userPassword.minLength.$invalid),
           }"
         />
-        <label for="password">Пароль</label>
+        <label for="password">{{ t('password') }}</label>
         <small
           class="helper-text invalid"
           v-if="v$.userPassword.$dirty && v$.userPassword.required.$invalid"
-          >Введіть пароль</small
+          >{{ t(passwordInvalid1) }}</small
         >
         <small
           class="helper-text invalid"
           v-else-if="
             v$.userPassword.$dirty && v$.userPassword.minLength.$invalid
           "
-          >Мінімальна довжина пароля
-          {{ v$.userPassword.minLength.$params.min }} символів. Довжина вашого
-          паролю {{ userPassword.length }} символів</small
+          >{{ t(passwordInvalid2) }}
+          {{ v$.userPassword.minLength.$params.min }} {{ passwordInvalid2_1 }} {{ userPassword.length }} {{ t(passwordInvalid2_2) }}</small
         >
       </div>
       <div class="input-field">
@@ -102,32 +108,40 @@ const submitHandler = async () => {
             invalid: v$.username.$dirty && v$.username.required.$invalid,
           }"
         />
-        <label for="name">Ім'я</label>
+        <label for="name">{{ t('name') }}</label>
         <small
           v-if="v$.username.$dirty && v$.username.required.$invalid"
           class="helper-text invalid"
-          >Введіть ваше ім"я</small
+          >{{ t('nameInvalid') }}</small
         >
       </div>
       <p>
         <label>
           <input type="checkbox" v-model="agree" />
-          <span>Згідний з правилами</span>
+          <span>{{ t('checkRules') }}</span>
         </label>
       </p>
     </div>
     <div class="card-action">
       <div>
         <button class="btn waves-effect waves-light auth-submit" type="submit">
-          Зареєструватися
+          {{ t('signUp') }}
           <i class="material-icons right">send</i>
         </button>
       </div>
 
       <p class="center">
-        Вже є аккаунт?
-        <router-link :to="{ name: 'login' }">Ввійти!</router-link>
+        {{ t('readyAccount') }}
+        <router-link :to="{ name: 'login' }">{{ t('enter') }}</router-link>
       </p>
     </div>
   </form>
+  <div class="switch">
+        <label>
+          English
+          <input type="checkbox" v-model="isUaLocale" v-on:change="locale = isUaLocale ? 'ua' : 'en'">
+          <span class="lever"></span>
+          Українська
+        </label>
+      </div>
 </template>
